@@ -1,0 +1,579 @@
+{%extends "base.html"%}
+{%block content%}
+
+<!-- Favicon -->
+        <script>
+          
+         var  difficulty = [];
+         
+        difficulty['Beginner']= 'مبتدئ';
+        difficulty['Intermediate']='متوسط';
+        difficulty['Advanced']='متقدم';
+        $(document).ready(function(){
+
+            
+
+
+    $('#select_type_rec').change(function(){
+      
+      var ur=$(this).val();
+     // alert(ur);
+      getRecommend(ur);
+    });          });
+        document.addEventListener("DOMContentLoaded", function() {
+            //fetch('/api/recommend_courses/{{user.id}}')
+            getRecommend('recommend/{{user.id}}');
+        });
+        function getRecommend(ur){
+          $(".load_recommend").show();
+            fetch(ur)
+                .then(response => response.json())
+                .then(data => {
+                  $(".load_recommend").hide();
+				//alert(JSON.stringify(data));
+                    const recommendations_count = document.getElementById("recommendations-count");
+					recommendations_count.innerHTML=data.recommended_courses.length+"";
+                    const table = document.getElementById("recommendations-table");
+                    table.innerHTML = ""; // تنظيف الجدول القديم
+
+                    data.recommended_courses.forEach(course => {
+				var difficulty_level=difficulty[course.difficulty_level];
+                        const row = document.createElement("li");
+						row.setAttribute('class','col-lg-3');
+						
+						var log=`<img src="${course.logo}" onerror="this.src='static/uploads/${course.logo}'" class="style-img img-fluid m-auto p-3" alt="image" width="100">`;
+						
+					if(course.course_url!=null){
+						  log=`<iframe src="https://www.youtube.com/embed/${course.course_url}"  style="width:100%;" title="${course.course_name}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+						}
+                        row.innerHTML =`<div class="card card-block card-stretch card-height mb-0">
+                                <div class="card-body">
+                                    <div class="bg-warning-light rounded">
+                              
+ ${log}
+                                        
+                                    </div>
+                                    <div class="style-text text-left mt-3" dir="rtl">
+                                                                <a href="course/${course.id}" class="search-link">               <h5 class="mb-1">${course.course_name}</h5></a>
+                             
+                                                          <div class="d-fle align-items-right text-right">
+                                                          <b>
+                                      المعدل المطلوب
+                                    </b>    : <span class="mb-0"> ${course.gpa_requirement}</span>
+                                        </div>
+                                  
+                                                                <div class="d-fle align-items-center  text-right">
+                                     <b> 
+                                    نسبة التوصية                     </b> :
+                                    <span class="mb-0">${course.sim} </span>
+                                  </div>
+                                              
+                                                                                                 <div class="d-flx align-items-center text-right">               <b>                   المستوئ المطلوب             </b>     :      <span class="mb-0">${difficulty_level} </span>
+                                     
+                                   </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                        table.appendChild(row);
+						//alert(row);
+                    });
+                })
+                .catch(error => console.error("Error fetching recommendations:", error));
+                //$(".load_recommend").hide();
+                  
+               // }
+}
+    </script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+		
+		
+		
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            
+<div class="alert text-white bg-success alert-{{ category }}" role="alert">
+                <div class="iq-alert-text">{{ message }}</div>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <i class="ri-close-line"></i>
+                </button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+		
+        </div>
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-lg-4 col-md-4">
+                    <div class="card card-block card-stretch card-height">
+                        <div class="card-body">
+
+						  <div class="d-flex align-items-center mb-4 card-total-sale">
+                                <div class="icon iq-icon-box-2 bg-info-light">
+                                    <img src="{{ url_for('static', filename='assets/images/product/1.png')}}" class="img-fluid" alt="image">
+                                </div>
+                                <div>
+                                    <p class="mb-2">
+									المعدل التراكمي المتوقع
+                                    </p>
+                                    <h4>
+{% for inner_list in gpa %}
+{{inner_list[1]}}
+{% endfor %}
+
+                            
+
+                            </h4>
+                                </div>
+                            </div>
+                            
+							
+                            <div class="iq-progress-bar mt-2">
+                                <span class="bg-info iq-progress progress-1" data-percent="{% for inner_list in gpa %}
+    {{ inner_list[1] }}
+    {% endfor %}">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                                <div class="col-lg-4 col-md-4">
+
+                    <div class="card card-block card-stretch card-height">
+
+                        <div class="card-body">
+<a href="javascript:void(0);" id="update_data_user" user_id="{{user.id}}">                          
+						  <div class="d-flex align-items-center mb-4 card-total-sale">
+                                <div class="icon iq-icon-box-2 bg-info-light">
+                                    <img src="{{ url_for('static', filename='assets/images/product/1.png')}}" class="img-fluid" alt="image">
+                                </div>
+                                <div>
+                                    <p class="mb-2">
+									المعدل التراكمي
+                                    </p>
+                                    <h4>
+{{user.gpa}}
+
+                            
+
+                            </h4>
+                                </div>
+                            </div>
+                            </a>
+							
+                            <div class="iq-progress-bar mt-2">
+                                <span class="bg-info iq-progress progress-1" data-percent="85">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="col-lg-4 col-md-4">
+                    <div class="card card-block card-stretch card-height">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-4 card-total-sale">
+                                <div class="icon iq-icon-box-2 bg-danger-light">
+                                    <img src="{{ url_for('static', filename='assets/images/product/2.png')}}" class="img-fluid" alt="image">
+                                </div>
+                                <div>
+                                    <p class="mb-2">
+									المستوئ
+                                    </p>
+                                    <h4>
+                                      
+{% if user.major == 1 %}
+    مبتدئ
+{% elif user.major == 2 %}
+    متوسط
+{% elif user.major == 3 %}
+    متقدم
+{% endif %}
+</h4>
+                                </div>
+                            </div>
+                            <div class="iq-progress-bar mt-2">
+                                <span class="bg-danger iq-progress progress-1" data-percent="{(user.major/3)*100}">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <div class="card card-block card-stretch card-height">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-4 card-total-sale">
+                                <div class="icon iq-icon-box-2 bg-success-light">
+                                    <img src="{{ url_for('static', filename='assets/images/product/3.png')}}" class="img-fluid" alt="image">
+                                </div>
+                                <div>
+                                    <p class="mb-2">
+                                        التوصيات
+
+                                        
+                                    </p>
+                                    <h4 id="recommendations-count">{{recomms}}</h4>
+                                </div>
+                            </div>
+                            <div class="iq-progress-bar mt-2">
+                                <span class="bg-success iq-progress progress-1" data-percent="75">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6" dir="rtl">
+            <div class="card card-block card-stretch card-height">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title" >
+                            نقاط القوة والضعف
+                        </h4>
+                    </div>
+                </div>
+                <div class="card-body">
+
+
+
+<canvas id="weaknessChart"></canvas>
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6"  dir="rtl">
+            <div class="card card-block card-stretch card-height">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">
+                            مدى فهم الطالب للدورات
+                        {{recommend}}
+						</h4>
+                    </div>
+
+                </div>
+                <div class="card-body">
+				
+				
+    <canvas id="understandingChart"></canvas>
+
+    <script>
+        $(document).ready(function() {
+	
+            $.ajax({
+                url: "/get_student_data",
+                method: "GET",
+                success: function(response) {
+                    // رسم مخطط مدى فهم الطالب
+                    const ctx1 = document.getElementById('understandingChart').getContext('2d');
+                    new Chart(ctx1, {
+                        type: 'bar',
+                        data: {
+                            labels: response.understanding.labels,
+                            datasets: [{
+                                label: 'مدى فهم الطالب (%)',
+                                data: response.understanding.values,
+                                backgroundColor: ['#3498db', '#e74c3c', '#f1c40f', '#2ecc71']
+                            }]
+                        },
+                        options: {
+                            scales: { y: { beginAtZero: true, max: 5 } }
+                        }
+                    });
+
+                    // رسم مخطط نقاط الضعف
+                    const ctx2 = document.getElementById('weaknessChart').getContext('2d');
+                    new Chart(ctx2, {
+                        type: 'pie',
+                        data: {
+                            labels: response.understanding.labels,
+                            datasets: [{
+                                data: response.understanding.values,
+                                backgroundColor: ['#e74c3c', '#f1c40f', '#2ecc71']
+                            }]
+                        }
+                    });
+                },
+                error: function() {
+                    alert("فشل في تحميل البيانات!");
+                }
+            });        });
+    </script>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card card-block card-stretch card-height">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">
+                           التوصيات 
+                        </h4>
+                                                               <select id="select_type_rec" >
+
+                              <option value="recommend/{{user.id}}">
+
+                                المعدل والمستوئ
+                              </option>               <option value="recommendations/{{user.id}}">
+
+                                 التقييمات
+
+                              </option>    
+                                       </select>
+                    </div>
+                </div>
+		       
+        <div class="card-body">
+				<div class="load_recommend" style="display:none">
+				  						<div class="spinner-grow" role="status" >
+
+  <span class="sr-only"  aria-hidden="false">Loading...</span>
+
+</div>
+				</div>
+				
+                    <ul class="list-unstyled row top-product mb-0" id="recommendations-table">
+		
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card card-transparent card-block card-stretch mb-4">
+                <div class="card-header d-flex align-items-center justify-content-between p-0">
+                    <div class="header-title">
+                        <h4 class="card-title mb-0">
+                            الدورات
+                        </h4>
+                    </div>
+                    <div class="card-header-toolbar d-flex align-items-center">
+                      <!--  <div>
+                          <a href="javascript:void(0);" class="btn btn-primary view-btn font-size-14" id="add_coursera">
+                            اضافة كورس 
+                        </a></div>-->
+                    </div>
+                </div>
+            </div>
+              {%for course in courses%} 
+            <div class="card card-block card-stretch card-height-helf" dir="rtl">
+                <div class="card-body card-item-right">
+                    <div class="d-flex align-items-top">
+                        <div class="bg-warning-light rounded">
+                            <img src="{{course.logo}}" onerror="this.src='static/uploads/{{course.logo}}'" class="style-img img-fluid m-auto" alt="image" width="150">
+                        </div>
+                        <div class="style-text text-left">
+                            <h5 class="mb-2">{{course.course_name}}</h5>
+                            <p class="mb-2">{{course.instructor}}</p>
+                            <p class="mb-0">{{course.description}}</p>
+                            <p class="mb-0">{{course.university}}</p>
+  <div>
+  {% if course.enr_id>0 %}
+  <a href="/course/{{course.id}}" target="_blank" class="btn btn-info view-btn font-size-14 " data-course-id="{{course.id}}">
+                            عرض 
+                        </a>
+						{% else %}
+  <a href="javascript:void(0);" class="btn btn-primary view-btn font-size-14 join-course-btn" data-course-id="{{course.id}}">
+                            الانظمام 
+                        </a>
+						{% endif %}
+						<div class="spinner-grow" role="status" style="display:none">
+  <span class="sr-only"  aria-hidden="false">Loading...</span>
+</div>
+						</div>						
+                        </div>
+                    </div>
+                </div>
+            </div>
+                  {%endfor%}
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  <style>
+                    
+                  
+                  .course {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .course h2 {
+            margin: 0 0 10px;
+        }
+        .course p {
+            margin: 5px 0;
+        }
+        .course img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* نسبة العرض إلى الارتفاع (16:9) */
+            height: 0;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+
+              {%for course in coursesex%} 
+{{course}}
+  <div class="course">
+                              <a href="/courseedx/{{course.id}}" target="_blank" class="btn btn-info view-btn font-size-14 " data-course-id="{{course.course_id}}">
+
+                            عرض 
+
+                        </a>
+                <h2>{{ course.name }}</h2>
+                <p><strong>معرف الدورة:</strong> {{ course.course_id }}</p>
+                <p><strong>المنظمة:</strong> {{ course.org }}</p>
+                <p><strong>تاريخ البدء:</strong> {{ course.start_display }}</p>
+                <p><strong>الوصف:</strong> {{ course.short_description }}</p>
+                {% if course.banner_image_url %}
+                    <img src="{{ course.banner_image_url }}" alt="صورة البانر">
+                {% endif %}
+                {% if course.course_video_url %}
+                    <div class="video-container">
+                        <iframe src="https://www.youtube.com/embed/{{ course.course_video_url.split('v=')[1] }}" allowfullscreen></iframe>
+
+                    </div>
+                {% endif %}
+            </div>
+<!--
+            <div class="card card-block card-stretch card-height-helf" dir="rtl">
+                <div class="card-body card-item-right">
+                    <div class="d-flex align-items-top">
+                        <div class="bg-warning-light rounded">
+                            <img src="{{course.banner_image_url}}" class="style-img img-fluid m-auto" alt="image" width="150">
+                        </div>
+                        <div class="style-text text-left">
+                            <h5 class="mb-2">{{course.name}}</h5>
+                            <p class="mb-2">{{course.instructor}}</p>
+                            <p class="mb-0">{{course.short_description}}</p>
+                            <p class="mb-0">{{course.start_display}}</p>
+  <div>
+{% if course.course_video_url %}
+  <a href="{{course.course_video_url}}" target="_blank" class="btn btn-info view-btn font-size-14 " data-course-id="{{course.id}}">
+                            youtube 
+                        </a>
+{% else %}
+  <a href="{{course.blocks_url}}" target="_blank" class="btn btn-info view-btn font-size-14 " data-course-id="{{course.id}}">
+
+                            عرض 
+
+                        </a>
+						{% endif %}
+						</div>						
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+                  {%endfor%}
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+        </div>
+   
+   
+   
+   
+<script type="text/javascript">
+			$(document).ready(function(){
+			  
+			  $('#add_coursera').click(function(){
+		try{
+		  alert("ss");
+uni_modal("<i class='fa fa-plus'></i>  new coursera   ","/add_coursera","mid-large")
+}catch(e){
+alert(e+"ss");
+  
+}
+		});
+		
+		$('#update_data_user').click(function(){
+		var user_id=$(this).attr('user_id');
+		try{
+
+			uni_modal("<i class='fa fa-plus'></i>  تحديث البينات  ","/update_user?user_id="+user_id+"","mid-large")
+}catch(e){
+alert(e+"ss");}
+		})
+		});
+</script>
+
+   
+<script>
+    $(document).ready(function () {
+        $(".join-course-btn").click(function () {
+		var btn=$(this).parent('div');
+		$(this).hide();
+		btn.find(".spinner-grow").show();
+            let courseId = $(this).data("course-id");  // جلب معرف الدورة
+            
+            $.ajax({
+                url: "/join_course",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ course_id: courseId }),
+                success: function (response) {
+				if(response.S==0){
+		
+		btn.find("a").show();
+		btn.find(".spinner-grow").hide();
+       		
+				}
+                    alert(response.message);  // عرض رسالة النجاح
+                },
+                error: function (xhr, status, error) {
+				
+		btn.find("a").show();
+		btn.find(".spinner-grow").hide();
+                    alert("Error: " + xhr.responseJSON.error);  // عرض رسالة الخطأ
+                }
+            });
+        });
+    });
+</script>
+   </div>
+    <!-- Page end  -->
+</div>
+<!-- AmCharts Core -->
+<script sr="https://cdn.amcharts.com/lib/4/core.js"></script>
+<!-- AmCharts Charts -->
+<script sr="https://cdn.amcharts.com/lib/4/charts.js"></script>
+<!-- AmCharts Themes (Optional) -->
+<script sr="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+
+
+{%endblock%}
